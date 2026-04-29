@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MOD·01 // Computer History & Technology</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #00ffe5;
+    --accent-dim: rgba(0,255,229,0.15);
+    --accent-border: rgba(0,255,229,0.25);
+    --dim: #0a0a12;
+    --panel: rgba(10,10,20,0.92);
+    --panel-light: rgba(13,13,26,0.85);
+    --text: #c8f0ec;
+    --text-dim: rgba(200,240,236,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--dim);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND */
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("background_module01.png");
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.25) saturate(0.6);
+  }
+
+  /* SCANLINES */
+  .scanlines {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+  }
+
+  /* GRID BG */
+  .gridbg {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: linear-gradient(rgba(0,255,229,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,229,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* CORNERS */
+  .corner { position: fixed; width: 36px; height: 36px; z-index: 50; opacity: 0.35; }
+  .corner.tl { top: .8rem; left: .8rem; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .corner.tr { top: .8rem; right: .8rem; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  .corner.bl { bottom: .8rem; left: .8rem; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .corner.br { bottom: .8rem; right: .8rem; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+
+  /* TOP NAV */
+  .top-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: rgba(10,10,20,0.9);
+    border-bottom: 1px solid var(--accent-border);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-id {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+  }
+
+  .nav-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #fff;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .nav-next {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--accent-border);
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .nav-next:hover { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+
+  /* TICKER */
+  .ticker-wrap {
+    position: fixed; top: 44px; left: 0; right: 0; z-index: 99;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(0,255,229,0.08);
+    background: rgba(10,10,20,0.7);
+    padding: 0.3rem 0;
+  }
+
+  .ticker {
+    display: flex; gap: 4rem;
+    animation: ticker-scroll 25s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker span {
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    opacity: 0.35;
+    text-transform: uppercase;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    position: relative; z-index: 10;
+    padding: 6rem 1.5rem 4rem;
+  }
+
+  /* PROJECT GRID */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  /* PROJECT CARD */
+  .proj-card {
+    background: var(--panel-light);
+    border: 1px solid var(--accent-border);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .proj-card::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    border-style: solid;
+    border-width: 0 16px 16px 0;
+    border-color: transparent var(--dim) transparent transparent;
+    z-index: 1;
+  }
+
+  .proj-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(0,255,229,0.12);
+  }
+
+  .proj-card:hover .card-img { filter: brightness(0.85) saturate(1.2); }
+
+  .card-accent-bar { height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+
+  .card-img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.75) saturate(0.8);
+    transition: filter 0.2s;
+  }
+
+  .card-label {
+    padding: 0.5rem 0.6rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .card-id {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+  }
+
+  .card-open {
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* MODAL OVERLAY */
+  .modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.88);
+    align-items: center; justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(6px);
+  }
+
+  .modal.open { display: flex; }
+
+  .modal-box {
+    background: var(--panel);
+    border: 1px solid var(--accent-border);
+    width: 100%; max-width: 560px;
+    max-height: 90vh; overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-box::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    border-style: solid;
+    border-width: 0 24px 24px 0;
+    border-color: transparent rgba(0,0,0,0.88) transparent transparent;
+    z-index: 1;
+  }
+
+  .modal-top-bar {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .modal-header {
+    padding: 1rem 1.25rem 0.75rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(0,255,229,0.08);
+  }
+
+  .modal-mod-id {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .modal-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #fff;
+    text-transform: uppercase;
+    flex: 1; margin: 0 0.75rem;
+  }
+
+  .modal-close {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid rgba(200,240,236,0.15);
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { color: #fff; border-color: rgba(200,240,236,0.4); }
+
+  .modal-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.9);
+    border-bottom: 1px solid rgba(0,255,229,0.08);
+  }
+
+  .modal-body { padding: 1.25rem; }
+
+  .modal-body p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.85;
+    color: rgba(200,240,236,0.75);
+    margin-bottom: 1rem;
+  }
+
+  .modal-body p:last-of-type { margin-bottom: 0; }
+
+  .modal-footnotes {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0,255,229,0.1);
+  }
+
+  .modal-footnotes a {
+    display: block;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 0.3rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .modal-footnotes a:hover { opacity: 1; }
+
+  .footnote-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  /* SCAN LINE */
+  .scan { position: fixed; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; animation: scan 8s linear infinite 1s; z-index: 5; pointer-events: none; }
+
+  @keyframes scan { 0% { top: 0; opacity: 0; } 5% { opacity: 0.4; } 92% { top: 100vh; opacity: 0.4; } 100% { top: 100vh; opacity: 0; } }
+  @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="scanlines"></div>
+<div class="gridbg"></div>
+<div class="scan"></div>
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<nav class="top-nav">
+  <span class="nav-id">MOD·01</span>
+  <span class="nav-title">Computer History &amp; Technology</span>
+  <a href="module02_images.html" class="nav-next">Next Module →</a>
+</nav>
+
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span>// mod·01 · computer history &amp; technology</span>
+    <span>// 21 artifacts logged</span>
+    <span>// speculation capsule · art104 · s2026</span>
+    <span>// select artifact to open transmission</span>
+    <span>// mod·01 · computer history &amp; technology</span>
+    <span>// 21 artifacts logged</span>
+    <span>// speculation capsule · art104 · s2026</span>
+    <span>// select artifact to open transmission</span>
+  </div>
+</div>
+
+<main class="main">
+  <div class="project-grid" id="grid"></div>
+</main>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-top-bar"></div>
+    <div class="modal-header">
+      <span class="modal-mod-id">MOD·01</span>
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" onclick="closeModal()">✕ Close</button>
+    </div>
+    <img class="modal-img" id="modal-image" src="" alt="">
+    <div class="modal-body">
+      <div id="modal-text"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const computerData = {
+  "1": { img:"images/computer1.png", p1:{text:"Computer1 paragraph 1 text...",footnote:"https://example.com/computer1p1"}, p2:{text:"Computer1 paragraph 2 text...",footnote:"https://example.com/computer1p2"} },
+  "2": { img:"images/computer2.png", p1:{text:"Computer2 paragraph 1 text...",footnote:"https://example.com/computer2p1"}, p2:{text:"Computer2 paragraph 2 text...",footnote:"https://example.com/computer2p2"} },
+  "3": { img:"images/computer3.png", p1:{text:"Computer3 paragraph 1 text...",footnote:"https://example.com/computer3p1"}, p2:{text:"Computer3 paragraph 2 text...",footnote:"https://example.com/computer3p2"} },
+  "4": { img:"images/computer4.png", p1:{text:"Computer4 paragraph 1 text...",footnote:"https://example.com/computer4p1"}, p2:{text:"Computer4 paragraph 2 text...",footnote:"https://example.com/computer4p2"} },
+  "5": { img:"images/computer5.png", p1:{text:"Computer5 paragraph 1 text...",footnote:"https://example.com/computer5p1"}, p2:{text:"Computer5 paragraph 2 text...",footnote:"https://example.com/computer5p2"} },
+  "6": { img:"images/computer6.png", p1:{text:"Computer6 paragraph 1 text...",footnote:"https://example.com/computer6p1"}, p2:{text:"Computer6 paragraph 2 text...",footnote:"https://example.com/computer6p2"} },
+  "7": { img:"images/computer7.png", p1:{text:"Computer7 paragraph 1 text...",footnote:"https://example.com/computer7p1"}, p2:{text:"Computer7 paragraph 2 text...",footnote:"https://example.com/computer7p2"} },
+  "8": { img:"images/computer8.png", p1:{text:"Computer8 paragraph 1 text...",footnote:"https://example.com/computer8p1"}, p2:{text:"Computer8 paragraph 2 text...",footnote:"https://example.com/computer8p2"} },
+  "9": { img:"images/computer9.png", p1:{text:"Computer9 paragraph 1 text...",footnote:"https://example.com/computer9p1"}, p2:{text:"Computer9 paragraph 2 text...",footnote:"https://example.com/computer9p2"} },
+  "10": { img:"images/computer10.png", p1:{text:"Computer10 paragraph 1 text...",footnote:"https://example.com/computer10p1"}, p2:{text:"Computer10 paragraph 2 text...",footnote:"https://example.com/computer10p2"} },
+  "11": { img:"images/computer11.png", p1:{text:"Computer11 paragraph 1 text...",footnote:"https://example.com/computer11p1"}, p2:{text:"Computer11 paragraph 2 text...",footnote:"https://example.com/computer11p2"} },
+  "12": { img:"images/computer12.png", p1:{text:"Computer12 paragraph 1 text...",footnote:"https://example.com/computer12p1"}, p2:{text:"Computer12 paragraph 2 text...",footnote:"https://example.com/computer12p2"} },
+  "13": { img:"images/computer13.png", p1:{text:"Computer13 paragraph 1 text...",footnote:"https://example.com/computer13p1"}, p2:{text:"Computer13 paragraph 2 text...",footnote:"https://example.com/computer13p2"} },
+  "14": { img:"images/computer14.png", p1:{text:"Computer14 paragraph 1 text...",footnote:"https://example.com/computer14p1"}, p2:{text:"Computer14 paragraph 2 text...",footnote:"https://example.com/computer14p2"} },
+  "15": { img:"images/computer15.png", p1:{text:"Computer15 paragraph 1 text...",footnote:"https://example.com/computer15p1"}, p2:{text:"Computer15 paragraph 2 text...",footnote:"https://example.com/computer15p2"} },
+  "16": { img:"images/computer16.png", p1:{text:"Computer16 paragraph 1 text...",footnote:"https://example.com/computer16p1"}, p2:{text:"Computer16 paragraph 2 text...",footnote:"https://example.com/computer16p2"} },
+  "17": { img:"images/computer17.png", p1:{text:"Computer17 paragraph 1 text...",footnote:"https://example.com/computer17p1"}, p2:{text:"Computer17 paragraph 2 text...",footnote:"https://example.com/computer17p2"} },
+  "18": { img:"images/computer18.png", p1:{text:"Computer18 paragraph 1 text...",footnote:"https://example.com/computer18p1"}, p2:{text:"Computer18 paragraph 2 text...",footnote:"https://example.com/computer18p2"} },
+  "19": { img:"images/computer19.png", p1:{text:`What I find most interesting and inspiring about this work is its emphasis on AR/XR technology and how devices like the Apple Vision Pro signal a shift toward immersive environments and how humans interact with computers. It raises important questions for me about the psychological effects of prolonged use and whether such technologies could push society toward a dystopia of escapism, in which virtual experiences replace meaningful engagement with reality. I appreciate the simplicity and practical design of the Apple Vision, but I'm uneasy about how strongly Apple encourages adoption, framing it as a necessary next step rather than an optional tool. This closely connects to my lived experience, as companies constantly try to sell the next "fad," often positioning it as transformative or essential. Personally, I'm more inclined to value and engage with what reality already offers than to consume carefully constructed false realities. While I understand that humanity naturally craves new experiences and technological exploration, I worry that for some people, these immersive systems may become substitutes for reality, reinforcing patterns of escapism rather than enriching everyday life.`,footnote:"https://example.com/computer19p1"}, p2:{text:"Computer19 paragraph 2 text...",footnote:"https://example.com/computer19p2"} },
+  "20": { img:"images/computer20.png", p1:{text:"Computer20 paragraph 1 text...",footnote:"https://example.com/computer20p1"}, p2:{text:"Computer20 paragraph 2 text...",footnote:"https://example.com/computer20p2"} },
+  "21": { img:"images/computer21.png", p1:{text:"Computer21 paragraph 1 text...",footnote:"taivideo.html"}, p2:{text:"Computer21 paragraph 2 text...",footnote:"https://example.com/computer21p2"} }
+};
+
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  Object.keys(computerData).forEach(id => {
+    const d = computerData[id];
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.innerHTML = `
+      <div class="card-accent-bar"></div>
+      <img class="card-img" src="${d.img}" alt="artifact ${id}">
+      <div class="card-label">
+        <span class="card-id">ART·${String(id).padStart(2,'0')}</span>
+        <span class="card-open">Open ↗</span>
+      </div>`;
+    card.addEventListener('click', () => openModal(id));
+    grid.appendChild(card);
+  });
+}
+
+function openModal(id) {
+  const d = computerData[id];
+  document.getElementById('modal-title').textContent = 'Artifact ' + String(id).padStart(2,'0');
+  document.getElementById('modal-image').src = d.img;
+  document.getElementById('modal-text').innerHTML = `
+    <p>${d.p1.text}</p>
+    <p>${d.p2.text}</p>
+    <div class="modal-footnotes">
+      <div class="footnote-label">// References</div>
+      <a href="${d.p1.footnote}" target="_blank" rel="noopener">↗ Source 01 — ${d.p1.footnote}</a>
+      <a href="${d.p2.footnote}" target="_blank" rel="noopener">↗ Source 02 — ${d.p2.footnote}</a>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+buildGrid();
+</script>
+</body>
+</html>

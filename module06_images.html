@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MOD·06 // Self-Proposed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #ff003c;
+    --accent-dim: rgba(255,0,60,0.08);
+    --accent-border: rgba(255,0,60,0.2);
+    --dim: #0a0a12;
+    --panel: rgba(10,10,20,0.92);
+    --panel-light: rgba(13,13,26,0.85);
+    --text: #ffd6e0;
+    --text-dim: rgba(255,214,224,0.4);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100vh; background: var(--dim); color: var(--text); font-family: 'Share Tech Mono', monospace; overflow-x: hidden; }
+  .bg { position: fixed; inset: 0; z-index: 0; background-image: url("background_module06.png"); background-size: cover; background-position: center; filter: brightness(0.22) saturate(0.5); }
+  .scanlines { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px); }
+  .gridbg { position: fixed; inset: 0; z-index: 1; pointer-events: none; background-image: linear-gradient(rgba(255,0,60,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,0,60,0.02) 1px, transparent 1px); background-size: 60px 60px; }
+  .corner { position: fixed; width: 36px; height: 36px; z-index: 50; opacity: 0.35; }
+  .corner.tl { top: .8rem; left: .8rem; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .corner.tr { top: .8rem; right: .8rem; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  .corner.bl { bottom: .8rem; left: .8rem; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .corner.br { bottom: .8rem; right: .8rem; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  .top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: rgba(10,10,20,0.9); border-bottom: 1px solid var(--accent-border); backdrop-filter: blur(8px); }
+  .nav-id { font-family: 'Orbitron', monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em; color: var(--accent); }
+  .nav-title { font-family: 'Orbitron', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: #fff; text-transform: uppercase; text-align: center; }
+  .nav-back { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); background: transparent; border: 1px solid var(--accent-border); padding: 0.35rem 0.9rem; cursor: pointer; text-decoration: none; transition: all 0.2s; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); }
+  .nav-back:hover { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+  .ticker-wrap { position: fixed; top: 44px; left: 0; right: 0; z-index: 99; overflow: hidden; border-bottom: 1px solid rgba(255,0,60,0.08); background: rgba(10,10,20,0.7); padding: 0.3rem 0; }
+  .ticker { display: flex; gap: 4rem; animation: ticker-scroll 25s linear infinite; white-space: nowrap; }
+  .ticker span { font-size: 0.55rem; letter-spacing: 0.25em; color: var(--accent); opacity: 0.35; text-transform: uppercase; }
+  .main { position: relative; z-index: 10; padding: 6rem 1.5rem 4rem; }
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; max-width: 1300px; margin: 0 auto; }
+  .proj-card { background: var(--panel-light); border: 1px solid var(--accent-border); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .proj-card::before { content: ''; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 16px 16px 0; border-color: transparent var(--dim) transparent transparent; z-index: 1; }
+  .proj-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 0 20px rgba(255,0,60,0.12); }
+  .proj-card:hover .card-img { filter: brightness(0.85) saturate(1.2); }
+  .card-accent-bar { height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; filter: brightness(0.75) saturate(0.8); transition: filter 0.2s; }
+  .card-label { padding: 0.5rem 0.6rem; display: flex; align-items: center; justify-content: space-between; }
+  .card-id { font-family: 'Orbitron', monospace; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.15em; color: var(--accent); }
+  .card-open { font-size: 0.55rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
+  .modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(6px); }
+  .modal.open { display: flex; }
+  .modal-box { background: var(--panel); border: 1px solid var(--accent-border); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
+  .modal-box::before { content: ''; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 24px 24px 0; border-color: transparent rgba(0,0,0,0.88) transparent transparent; z-index: 1; }
+  .modal-top-bar { height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .modal-header { padding: 1rem 1.25rem 0.75rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,0,60,0.08); }
+  .modal-mod-id { font-family: 'Orbitron', monospace; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.2em; color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-border); padding: 0.2rem 0.5rem; }
+  .modal-title { font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #fff; text-transform: uppercase; flex: 1; margin: 0 0.75rem; }
+  .modal-close { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: var(--text-dim); background: transparent; border: 1px solid rgba(255,214,224,0.15); padding: 0.25rem 0.6rem; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+  .modal-close:hover { color: #fff; border-color: rgba(255,214,224,0.4); }
+  .modal-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; filter: brightness(0.9); border-bottom: 1px solid rgba(255,0,60,0.08); }
+  .modal-body { padding: 1.25rem; }
+  .modal-body p { font-family: 'Space Mono', monospace; font-size: 0.72rem; line-height: 1.85; color: rgba(255,214,224,0.75); margin-bottom: 1rem; }
+  .modal-footnotes { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,0,60,0.1); }
+  .modal-footnotes a { display: block; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--accent); text-decoration: none; margin-bottom: 0.3rem; opacity: 0.6; transition: opacity 0.2s; }
+  .modal-footnotes a:hover { opacity: 1; }
+  .footnote-label { font-size: 0.55rem; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.4rem; }
+  .scan { position: fixed; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; animation: scan 8s linear infinite 1s; z-index: 5; pointer-events: none; }
+  @keyframes scan { 0% { top: 0; opacity: 0; } 5% { opacity: 0.4; } 92% { top: 100vh; opacity: 0.4; } 100% { top: 100vh; opacity: 0; } }
+  @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="scanlines"></div><div class="gridbg"></div><div class="scan"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+<nav class="top-nav">
+  <span class="nav-id">MOD·06</span>
+  <span class="nav-title">Self-Proposed</span>
+  <a href="index.html" class="nav-back">← Back to Index</a>
+</nav>
+<div class="ticker-wrap"><div class="ticker">
+  <span>// mod·06 · self-proposed · open vector</span><span>// 6 artifacts logged</span><span>// speculation capsule · art104 · s2026</span><span>// terminal module · capsule sealed</span>
+  <span>// mod·06 · self-proposed · open vector</span><span>// 6 artifacts logged</span><span>// speculation capsule · art104 · s2026</span><span>// terminal module · capsule sealed</span>
+</div></div>
+<main class="main"><div class="project-grid" id="grid"></div></main>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-top-bar"></div>
+    <div class="modal-header">
+      <span class="modal-mod-id">MOD·06</span>
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" onclick="closeModal()">✕ Close</button>
+    </div>
+    <img class="modal-img" id="modal-image" src="" alt="">
+    <div class="modal-body" id="modal-text"></div>
+  </div>
+</div>
+<script>
+const moduleData = {
+  "1": { img:"images/self1.png", title:"Artifact 01", text:"Add your self-proposed 1 text here.", p1:{footnote:"https://example.com"}, p2:{footnote:"https://example.com"} },
+  "2": { img:"images/self2.png", title:"Artifact 02", text:"Add your self-proposed 2 text here.", p1:{footnote:"https://example.com"}, p2:{footnote:"https://example.com"} },
+  "3": { img:"images/self3.png", title:"Artifact 03", text:"Add your self-proposed 3 text here.", p1:{footnote:"https://example.com"}, p2:{footnote:"https://example.com"} },
+  "4": { img:"images/self4.png", title:"Artifact 04", text:"Add your self-proposed 4 text here.", p1:{footnote:"https://example.com"}, p2:{footnote:"https://example.com"} },
+  "5": { img:"images/self5.png", title:"Artifact 05", text:"Add your self-proposed 5 text here.", p1:{footnote:"https://example.com"}, p2:{footnote:"https://example.com"} },
+  "6": { img:"images/self6.png", title:"Artifact 06", text:"Add your self-proposed 6 text here.", p1:{footnote:"https://example.com"}, p2:{footnote:"https://example.com"} }
+};
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  Object.keys(moduleData).forEach(id => {
+    const d = moduleData[id];
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.innerHTML = `<div class="card-accent-bar"></div><img class="card-img" src="${d.img}" alt="artifact ${id}"><div class="card-label"><span class="card-id">ART·${String(id).padStart(2,'0')}</span><span class="card-open">Open ↗</span></div>`;
+    card.addEventListener('click', () => openModal(id));
+    grid.appendChild(card);
+  });
+}
+function openModal(id) {
+  const d = moduleData[id];
+  document.getElementById('modal-title').textContent = d.title;
+  document.getElementById('modal-image').src = d.img;
+  document.getElementById('modal-text').innerHTML = `<p>${d.text.replace(/\n\n/g,'</p><p>')}</p><div class="modal-footnotes"><div class="footnote-label">// References</div><a href="${d.p1.footnote}" target="_blank">↗ Source 01</a><a href="${d.p2.footnote}" target="_blank">↗ Source 02</a></div>`;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+buildGrid();
+</script>
+</body>
+</html>
